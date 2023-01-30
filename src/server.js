@@ -22,10 +22,10 @@ const server = http.createServer((req, res) => {
 
         users.push(user);
 
-        return res.end(user);
+        return res.writeHead(201).end();
     }
 
-    return res.end('server up!');
+    return res.writeHead(404).end();
 });
 
 
