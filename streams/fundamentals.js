@@ -1,4 +1,4 @@
-import { Readable, Writable } from 'node:stream';
+import { Readable, Transform, Writable } from 'node:stream';
 
 class OneToHundredStream extends Readable {
     index = 1;
@@ -18,6 +18,14 @@ class OneToHundredStream extends Readable {
     }
 }
 
+class TransformToNegativeNumberStream extends Transform {
+    _transform(chunk, enconding, callback) {
+        const transformed = Number(chunk.toString()) * -1;
+
+        callback(null, Buffer.from(String(transformed)));
+    }
+}
+
 class MultiplyByTenStream extends Writable {
     _write(chunk, enconding, callback) {
         console.log(Number(chunk.toString()) * 10);
@@ -26,4 +34,6 @@ class MultiplyByTenStream extends Writable {
     }
 }
 
-new OneToHundredStream().pipe(new MultiplyByTenStream());
+new OneToHundredStream()
+    .pipe(new TransformToNegativeNumberStream())
+    .pipe(new MultiplyByTenStream());
