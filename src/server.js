@@ -1,5 +1,7 @@
 import http from 'node:http';
 
+import { json } from './middlewares/json.js';
+
 const users = [];
 
 const server = http.createServer(async (req, res) => {
@@ -7,26 +9,10 @@ const server = http.createServer(async (req, res) => {
 
     console.log({ method, url, params });
 
-    const buffers = [];
-
-    for await (const chunk of req) {
-        buffers.push(chunk);
-    }
-
-    try {
-        req.body = JSON.parse(
-            Buffer.concat(buffers).toString()
-        );
-    } catch (error) {
-        req.body = null;
-    }
-
-    console.log(fullStreamContent);
+    await json(req, res);
 
     if (method === "GET" && url === "/users") {
-        return res
-            .setHeader('Content-type', 'application/json')
-            .end(JSON.stringify(users));
+        return res.end(JSON.stringify(users));
     }
 
     if (method === "POST" && url === "/users") {
@@ -45,6 +31,5 @@ const server = http.createServer(async (req, res) => {
 
     return res.writeHead(404).end();
 });
-
 
 server.listen(3333);
